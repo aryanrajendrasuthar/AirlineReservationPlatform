@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
 
 const FEATURED_ROUTES = [
@@ -64,9 +65,9 @@ export default function Home() {
         <p className="text-gray-500 mb-8">Top destinations our travelers love</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {FEATURED_ROUTES.map((route) => (
-            <a
+            <Link
               key={`${route.from}-${route.to}`}
-              href={`/search?origin=${route.from}&destination=${route.to}&date=${new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0]}&passengers=1&seatClass=ECONOMY`}
+              to={`/search?origin=${route.from}&destination=${route.to}&date=${new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0]}&passengers=1&seatClass=ECONOMY`}
               className="card p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group cursor-pointer"
             >
               <div className="flex items-center justify-between mb-3">
@@ -78,7 +79,7 @@ export default function Home() {
               </div>
               <p className="text-sm text-gray-500 mb-1">{route.fromCity} → {route.toCity}</p>
               <p className="text-airline-navy font-semibold">from <span className="text-xl font-bold">${route.price}</span></p>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

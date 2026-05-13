@@ -80,7 +80,6 @@ export default function BookingWizard() {
       toast.error(`Please select exactly ${passengerCount} seat${passengerCount > 1 ? 's' : ''}`)
       return
     }
-    if (step === 1) loadSeats()
     setStep((s) => s + 1)
   }
 
@@ -108,9 +107,7 @@ export default function BookingWizard() {
         tripType,
       })
       setBooking(res.data)
-      const secret = res.data.stripeClientSecret ?? ''
-      setClientSecret(secret)
-      ;(window as unknown as Record<string, unknown>).__stripeClientSecret = secret
+      setClientSecret(res.data.stripeClientSecret ?? '')
       setStep(3)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Booking failed'
@@ -326,6 +323,7 @@ export default function BookingWizard() {
           <Elements stripe={stripePromise} options={{ clientSecret }}>
             <CheckoutForm
               totalPrice={totalPrice()}
+              clientSecret={clientSecret}
               onSuccess={handlePaymentSuccess}
               onError={(msg) => toast.error(msg)}
             />

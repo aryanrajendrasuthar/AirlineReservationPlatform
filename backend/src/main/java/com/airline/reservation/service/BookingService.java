@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,12 +42,15 @@ public class BookingService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Validate and lock seats
+        // Validate and lock seats (rollback already-locked seats on failure)
+        List<String> lockedSeats = new ArrayList<>();
         for (String seatNumber : request.getSelectedSeats()) {
             boolean locked = seatService.lockSeat(flight.getId(), seatNumber);
             if (!locked) {
+                lockedSeats.forEach(s -> seatService.unlockSeat(flight.getId(), s));
                 throw new IllegalStateException("Seat " + seatNumber + " is no longer available");
             }
+            lockedSeats.add(seatNumber);
         }
 
         // Calculate total price
@@ -135,8 +139,9 @@ public class BookingService {
             throw new IllegalStateException("Booking already cancelled");
         }
 
+        boolean wasConfirmed = booking.getStatus() == Booking.BookingStatus.CONFIRMED;
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        if (booking.getStatus() == Booking.BookingStatus.CONFIRMED) {
+        if (wasConfirmed) {
             seatService.releaseSeats(booking.getFlight().getId(), booking.getSeats());
         }
         bookingRepository.save(booking);

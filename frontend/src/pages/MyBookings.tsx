@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { bookingApi } from '../services/api'
 import type { Booking } from '../types'
@@ -64,7 +65,7 @@ export default function MyBookings() {
           </svg>
           <h3 className="text-lg font-semibold text-gray-700 mb-1">No bookings yet</h3>
           <p className="text-gray-500 text-sm">Your confirmed bookings will appear here.</p>
-          <a href="/" className="inline-block mt-4 btn-primary text-sm">Search Flights</a>
+          <Link to="/" className="inline-block mt-4 btn-primary text-sm">Search Flights</Link>
         </div>
       ) : (
         <div className="space-y-4">

@@ -86,6 +86,26 @@ public class FlightService {
     }
 
     @Transactional
+    public FlightDTO updateFlight(Long id, AdminFlightRequest req) {
+        Flight flight = flightRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Flight not found: " + id));
+        flight.setFlightNumber(req.getFlightNumber());
+        flight.setOrigin(req.getOrigin());
+        flight.setOriginCode(req.getOriginCode().toUpperCase());
+        flight.setDestination(req.getDestination());
+        flight.setDestinationCode(req.getDestinationCode().toUpperCase());
+        flight.setDepartureTime(req.getDepartureTime());
+        flight.setArrivalTime(req.getArrivalTime());
+        flight.setAircraft(req.getAircraft());
+        flight.setAirline(req.getAirline());
+        if (req.getStatus() != null) {
+            flight.setStatus(req.getStatus());
+        }
+        flightRepository.save(flight);
+        return toDTO(flight, null);
+    }
+
+    @Transactional
     public FlightDTO updateFlightStatus(Long id, Flight.FlightStatus status) {
         Flight flight = flightRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Flight not found: " + id));
@@ -138,10 +158,11 @@ public class FlightService {
         Map<String, FlightDTO.SeatClassInfo> classInfo = new HashMap<>();
 
         for (Seat.SeatClass cls : Seat.SeatClass.values()) {
+            long total = seats.stream().filter(s -> s.getSeatClass() == cls).count();
+            if (total == 0) continue;
             long available = seats.stream()
                 .filter(s -> s.getSeatClass() == cls && s.getStatus() == Seat.SeatStatus.AVAILABLE)
                 .count();
-            long total = seats.stream().filter(s -> s.getSeatClass() == cls).count();
             BigDecimal price = seats.stream()
                 .filter(s -> s.getSeatClass() == cls)
                 .map(Seat::getPrice)

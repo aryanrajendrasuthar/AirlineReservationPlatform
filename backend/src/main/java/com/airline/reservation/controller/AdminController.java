@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -35,12 +34,18 @@ public class AdminController {
         return ResponseEntity.ok(flightService.createFlight(request));
     }
 
+    @PutMapping("/flights/{id}")
+    public ResponseEntity<FlightDTO> updateFlight(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminFlightRequest request) {
+        return ResponseEntity.ok(flightService.updateFlight(id, request));
+    }
+
     @PatchMapping("/flights/{id}/status")
     public ResponseEntity<FlightDTO> updateFlightStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-        Flight.FlightStatus status = Flight.FlightStatus.valueOf(body.get("status"));
-        return ResponseEntity.ok(flightService.updateFlightStatus(id, status));
+            @RequestParam String status) {
+        return ResponseEntity.ok(flightService.updateFlightStatus(id, Flight.FlightStatus.valueOf(status)));
     }
 
     @DeleteMapping("/flights/{id}")

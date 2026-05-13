@@ -4,12 +4,13 @@ import toast from 'react-hot-toast'
 
 interface Props {
   totalPrice: number
+  clientSecret: string
   onSuccess: () => void
   onError: (msg: string) => void
   disabled?: boolean
 }
 
-export default function CheckoutForm({ totalPrice, onSuccess, onError, disabled }: Props) {
+export default function CheckoutForm({ totalPrice, clientSecret, onSuccess, onError, disabled }: Props) {
   const stripe = useStripe()
   const elements = useElements()
   const [processing, setProcessing] = useState(false)
@@ -25,10 +26,9 @@ export default function CheckoutForm({ totalPrice, onSuccess, onError, disabled 
       return
     }
 
-    const { error } = await stripe.confirmCardPayment(
-      (window as unknown as { __stripeClientSecret: string }).__stripeClientSecret,
-      { payment_method: { card } }
-    )
+    const { error } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card },
+    })
 
     setProcessing(false)
     if (error) {
